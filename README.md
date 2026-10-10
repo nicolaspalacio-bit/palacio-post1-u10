@@ -1,5 +1,7 @@
 # Envios Service - Diagnostico y Mejora Guiada por Metricas Reales
 
+[![CI](https://github.com/nicolaspalacio-bit/palacio-post1-u10/actions/workflows/ci.yml/badge.svg)](https://github.com/nicolaspalacio-bit/palacio-post1-u10/actions/workflows/ci.yml)
+
 **Estudiante:** Nicolas Andres Palacio Boada  
 **Programa:** Ingenieria de Sistemas  
 **Institucion:** Universidad de Santander (UDES), Sede Cucuta  
