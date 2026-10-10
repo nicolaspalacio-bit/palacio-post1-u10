@@ -105,6 +105,9 @@ sequenceDiagram
 
 ```text
 palacio-post1-u10/
+|-- .github/
+|   `-- workflows/
+|       `-- ci.yml                   # Pipeline de Integracion Continua (OpenJDK 21 + JaCoCo)
 |-- docs/
 |   |-- adr/
 |   |   |-- ADR-001.md               # Seleccion de entorno: SonarQube local vs SonarCloud
@@ -116,8 +119,15 @@ palacio-post1-u10/
 |   |-- capturas/
 |   |   |-- 01-jacoco-inicial.png    # Evidencia JaCoCo Parte 1 (CC = 20, Cobertura = 18.4%)
 |   |   |-- 02-jacoco-final.png      # Evidencia JaCoCo Parte 2 (CC = 5, Cobertura = 100%)
-|   |   `-- 03-mvn-test-final.png    # Evidencia terminal: 21 pruebas en verde y BUILD SUCCESS
-|   `-- GUIA_DE_PRUEBAS.md           # Catalogo detallado de casos de prueba y aserciones
+|   |   |-- 03-mvn-test-final.png    # Evidencia terminal: 21 pruebas en verde y BUILD SUCCESS con Java 21
+|   |   |-- 04-sonar-dashboard-inicial.png # Evidencia SonarQube Parte 1 (FAILED, CC = 20, 2 Smells)
+|   |   `-- 05-sonar-dashboard-final.png   # Evidencia SonarQube Parte 2 (PASSED, CC = 5, 0 Smells)
+|   |-- GUIA_DE_PRUEBAS.md           # Catalogo detallado de casos de prueba y aserciones
+|   |-- jacoco-inicial.png           # Evidencia JaCoCo inicial (directorio raiz docs/)
+|   |-- jacoco-final.png             # Evidencia JaCoCo final (directorio raiz docs/)
+|   |-- mvn-test-final.png           # Evidencia terminal Java 21
+|   |-- sonar-dashboard-inicial.png  # Evidencia SonarQube inicial (directorio raiz docs/)
+|   `-- sonar-dashboard-final.png    # Evidencia SonarQube final (directorio raiz docs/)
 |-- src/
 |   |-- main/
 |   |   `-- java/
@@ -141,9 +151,9 @@ palacio-post1-u10/
 |               `-- service/
 |                   `-- ServicioCalculoEnvioTest.java       # Pruebas unitarias del orquestador
 |-- .gitignore                       # Exclusion de target/, temporales y metadatos
-|-- pom.xml                          # Configuracion Maven con JUnit 5, JaCoCo y Sonar plugin
+|-- pom.xml                          # Configuracion Maven con Java 21, JUnit 5, JaCoCo y Sonar plugin
 |-- README.md                        # Documentacion integral del laboratorio
-`-- sonar-project.properties         # Parametros de configuracion para SonarQube / SonarCloud
+`-- sonar-project.properties         # Parametros de configuracion comentados para SonarQube
 ```
 
 ---
@@ -327,34 +337,49 @@ mvn sonar:sonar `
 
 Cada captura corresponde fielmente a una ejecucion real en el entorno del laboratorio:
 
-### Evidencia 01: Reporte JaCoCo Inicial (Parte 1 - Diagnostico)
-Evidencia visual de la clase `ServicioCalculoEnvio` antes de la refactorizacion, mostrando CC = 20 en `calcularCosto()`, 18.4% de ramas cubiertas (7/38) y 23.8% de lineas (10/42).
+### Evidencia 01: Dashboard SonarQube Inicial (Parte 1 - Diagnostico)
+Captura del dashboard de SonarQube en la Parte 1 con el perfil y Quality Gate "Estandar Laboratorio": estado **FAILED** debido a incumplimiento de cobertura (18.4% < 70%) y presencia de 2 Code Smells por violacion a la regla S1541 en `calcularCosto()` (CC = 20 > 10).
 
-![01-jacoco-inicial](docs/capturas/01-jacoco-inicial.png)
-
----
-
-### Evidencia 02: Reporte JaCoCo Final (Parte 2 - Mejora Guiada)
-Evidencia visual del reporte de JaCoCo tras la refactorizacion con Strategy y la inclusion de las pruebas parametrizadas: 100% de lineas y 100% de ramas cubiertas en todas las estrategias y en el orquestador.
-
-![02-jacoco-final](docs/capturas/02-jacoco-final.png)
+![01-sonar-dashboard-inicial](docs/sonar-dashboard-inicial.png)
 
 ---
 
-### Evidencia 03: Ejecucion de las 21 Pruebas Automatizadas con Maven
-Captura de la salida real de la terminal de Windows PowerShell ejecutando `mvn test`, evidenciando 21 pruebas ejecutadas, 0 fallos, 0 errores y `BUILD SUCCESS`.
+### Evidencia 02: Reporte JaCoCo Inicial (Parte 1 - Diagnostico)
+Evidencia visual de la clase monolitica `ServicioCalculoEnvio` antes de la refactorizacion, mostrando CC = 20 en `calcularCosto()`, 18.4% de ramas cubiertas (7/38) y 23.8% de lineas (10/42).
 
-![03-mvn-test-final](docs/capturas/03-mvn-test-final.png)
+![02-jacoco-inicial](docs/jacoco-inicial.png)
+
+---
+
+### Evidencia 03: Dashboard SonarQube Final (Parte 2 - Mejora Guiada)
+Captura del dashboard de SonarQube tras la refactorizacion con el patron Strategy: estado **PASSED** con todas las condiciones del Quality Gate satisfechas: 100.0% de cobertura (>= 70%), 0 Code Smells nuevos (regla S1541 cumplida con CC maxima de 5 <= 10) y 0.0% de duplicacion (< 5%).
+
+![03-sonar-dashboard-final](docs/sonar-dashboard-final.png)
+
+---
+
+### Evidencia 04: Reporte JaCoCo Final (Parte 2 - Mejora Guiada)
+Evidencia visual del reporte de JaCoCo tras la refactorizacion con Strategy y la inclusion de las pruebas parametrizadas: 100% de lineas y 100% de ramas cubiertas en todas las estrategias y en el orquestador (32/32 ramas, 50/50 lineas).
+
+![04-jacoco-final](docs/jacoco-final.png)
+
+---
+
+### Evidencia 05: Ejecucion de las 21 Pruebas Automatizadas con Maven en Java 21 LTS
+Captura de la salida real de la terminal de Windows PowerShell ejecutando `mvn test` bajo OpenJDK 21.0.8 LTS, evidenciando 21 pruebas ejecutadas, 0 fallos, 0 errores y `BUILD SUCCESS`.
+
+![05-mvn-test-final](docs/mvn-test-final.png)
 
 ---
 
 ## 9. Herramientas Utilizadas
 
-- **Lenguaje:** Java 17 (Eclipse Adoptium JDK 17.0.20.1)
-- **Gestor de Construccion:** Apache Maven 3.9.9
+- **Lenguaje:** Java 21 (Microsoft OpenJDK 21.0.8 LTS)
+- **Gestor de Construccion:** Apache Maven 3.9.16
 - **Framework de Pruebas:** JUnit Jupiter 5.10.2 (con soporte para pruebas parametrizadas `@ParameterizedTest` y `@CsvSource`)
 - **Motor de Cobertura de Codigo:** JaCoCo Maven Plugin 0.8.12
 - **Inspeccion Estatica de Codigo:** SonarQube Scanner Maven Plugin 3.11.0.3922
+- **Integracion Continua (CI):** GitHub Actions (Ubuntu Latest, Eclipse Temurin JDK 21, cache Maven y artefacto JaCoCo)
 - **Control de Versiones y Alojamiento:** Git 2.53, GitHub
 
 ---
